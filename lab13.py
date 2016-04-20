@@ -127,10 +127,79 @@ def a_star(m, start_pos, goal_pos):
         else:
             return path
 
+
+        
+
+def returnPathFromNode(node):
+    path = [node.point]
+    node = node.parent
+    while node:
+        path.append(node.point)
+        node = node.parent
+    path.reverse()
+    return path
+        
+def a_star_try_two(m, start_pos, goal_pos):
+    closedList = []
+    startNode = Node(start_pos)
+    openList = [startNode]
+    
+    while openList:
+        #Choose the node with the lowest f-value
+        currNode = openList[0]
+        for node in openList:
+            if node.f < currNode.f:
+                currNode = node
+        #if it is the goal, then we are done
+        if currNode.point == goal_pos:
+            #reached goal!
+            print("Reached Goal! Returning path...")
+            return returnPathFromNode(currNode)
+        openList.remove(currNode)
+        closedList.append(currNode)
+        neighbors = adjacent(m, currNode.point)
+        for point in neighbors:
+            #Check if the point is in the closedList
+            inClosed = False
+            for node in closedList:
+                if node.point == point:
+                    inClosed = True
+                    break
+            if inClosed:
+                pass
+            #Now calculate the f, g, and h values
+            g = currNode.g + 1
+            h = EuclideanDistance(point, goal_pos)
+            f = g + h
+            #Check if this point is in the openList
+            openListIndex = -1
+            for index in range(0, len(openList)):
+                if openList[index].point == point:
+                    openListIndex = index
+                    break
+            if openListIndex < 0:
+                #Not in openList, so we must create the node and add it!
+                newNode = Node(point)
+                newNode.parent = currNode
+                newNode.f = f
+                newNode.g = g
+                newNode.h = h
+                #And add to openList
+                openList.append(newNode)
+            else:
+                if openList[openListIndex].f > f:
+                    #Change the node!
+                    openList[openListIndex].f = f
+                    openList[openListIndex].g = g
+                    openList[openListIndex].h = h
+                    openList[openListIndex].parent = currNode
+    print("No Goal reached")
+    return []
+        
 if __name__ == "__main__":
     # load the map
     m = np.loadtxt("map2.txt", delimiter=",")
-    path = a_star(m, (0, 1), (3, 0))
+    path = a_star_try_two(m, (1, 1), (7, 15))
     print(path)
     #path = [(0,1),(0,2)]
     # Add the path to the map (for visualization)
